@@ -1,0 +1,41 @@
+SELECT
+    profile.fid,
+    profile.avatar_url,
+    profile.display_name,
+    profile.bio,
+    profile.fname,
+    account_age.created_at,
+    account_age.account_age_interval,
+    account_age.account_age_days,
+    follows.followers,
+    follows.following,
+    follows.followers_to_following,
+    casts.casts,
+    casts.original_casts,
+    CASE
+        WHEN account_age.account_age_days IS NULL
+            THEN NULL
+        WHEN account_age.account_age_days = 0
+            THEN 0
+        ELSE CAST(casts.casts AS DOUBLE) / CAST(account_age.account_age_days AS DOUBLE)
+    END AS casts_per_day,
+    casts.avg_cast_length,
+    quote_casts.quote_casts,
+    quote_casts.original_quote_casts,
+    CAST(quote_casts.quote_casts AS DOUBLE) / CAST(casts.casts AS DOUBLE) AS quote_casts_to_casts,
+    CAST(quote_casts.original_quote_casts AS DOUBLE) / CAST(casts.original_casts AS DOUBLE) AS original_quote_casts_to_casts,
+    cast_timing.stddev_seconds_between_casts,
+    cast_timing.avg_seconds_between_casts
+FROM
+    query_3540616 profile
+LEFT JOIN
+    query_3540470 account_age ON account_age.fid = profile.fid
+LEFT JOIN
+    query_3540574 follows ON follows.fid = profile.fid
+LEFT JOIN
+    query_3540561 casts ON casts.fid = profile.fid
+LEFT JOIN
+    query_3540899 quote_casts ON quote_casts.fid = profile.fid
+LEFT JOIN
+    query_3541339 cast_timing ON cast_timing.fid = profile.fid
+;
